@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@openzeppelin/contracts": "file:4.5.0/utils/cryptography/MerkleProof.sol",
+    "@openzeppelin/truffle-upgrades": "^1.15.0"
+  }
+}
