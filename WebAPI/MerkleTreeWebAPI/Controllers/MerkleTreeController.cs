@@ -69,11 +69,27 @@ namespace MerkleTreeWebAPI.Controllers
         public async Task<ActionResult<Root>> PostNewWhiteList(Addresses addresses)
         {
             tree =  new MerkleTools.MerkleTree();
+            var addressPath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "addressForLoad.json");
+            var json = System.IO.File.ReadAllText(addressPath);
+
+            var jsonSettings = new JsonSerializerSettings();
+            jsonSettings.Converters.Add(new ExpandoObjectConverter());
+            jsonSettings.Converters.Add(new StringEnumConverter());
+
+            dynamic addressJson = JsonConvert.DeserializeObject<ExpandoObject>(json, jsonSettings);
+            List<string> addressList = new List<string>() { };
             for (int i = 0; i < addresses.Address.Length; i++)
             {
                 Console.WriteLine(i + ". addres is: " + addresses.Address[i]);
                 tree.AddLeaf(Encoding.ASCII.GetBytes(addresses.Address[i]), true);
+                addressList.Add(addresses.Address[i]);
             }
+
+
+            addressJson.saltAddress = addressList;
+            var newJson = JsonConvert.SerializeObject(addressJson, Formatting.Indented, jsonSettings);
+            System.IO.File.WriteAllText(addressPath, newJson);
+
 
             Console.WriteLine("root is: " + Encoding.UTF8.GetString(tree.MerkleRootHash));
 
