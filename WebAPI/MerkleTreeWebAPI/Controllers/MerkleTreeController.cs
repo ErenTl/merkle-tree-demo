@@ -1,6 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MerkleTreeWebAPI.Models;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Dynamic;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
