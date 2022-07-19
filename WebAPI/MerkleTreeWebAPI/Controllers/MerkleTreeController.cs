@@ -21,6 +21,29 @@ namespace MerkleTreeWebAPI.Controllers
 
         public MerkleTreeController()
         {
+            if(tree == null)
+            {
+                tree = new MerkleTools.MerkleTree();
+                var addressPath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "addressForLoad.json");
+                var json = System.IO.File.ReadAllText(addressPath);
+
+                var jsonSettings = new JsonSerializerSettings();
+                jsonSettings.Converters.Add(new ExpandoObjectConverter());
+                jsonSettings.Converters.Add(new StringEnumConverter());
+
+                dynamic addressJson = JsonConvert.DeserializeObject<ExpandoObject>(json, jsonSettings);
+                Console.WriteLine("deneme: " + addressJson.saltAddress.Count);
+                //JArray saltAddresses = JArray.Parse(addressJson.saltAddress);
+                
+                for (int i = 0; i < addressJson.saltAddress.Count; i++)
+                {
+                    Console.WriteLine(i + ". addres is: " + addressJson.saltAddress[i]);
+                    tree.AddLeaf(Encoding.ASCII.GetBytes(addressJson.saltAddress[i]), true);
+                }
+
+
+                Console.WriteLine("root is: " + Encoding.UTF8.GetString(tree.MerkleRootHash));
+            }
         }
 
 
