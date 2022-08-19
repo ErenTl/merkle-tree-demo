@@ -6,6 +6,9 @@ using Newtonsoft.Json.Converters;
 using System.Dynamic;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Nethereum.Signer.EIP712;
+using Nethereum.Util;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,6 +21,24 @@ namespace MerkleTreeWebAPI.Controllers
     {
         private string root;
         static MerkleTools.MerkleTree tree;
+
+        private readonly Eip712TypedDataSigner _signer = new Eip712TypedDataSigner();
+
+        internal TypedData<Domain> GetMailTypedDefinition()
+        {
+            return new TypedData<Domain>
+            {
+                Domain = new Domain
+                {
+                    Name = "My amazing dApp",
+                    Version = "2",
+                    ChainId = 1337,
+                    VerifyingContract = "0x1C56346CD2A2Bf3202F771f50d3D14a367B48070"
+                },
+                Types = MemberDescriptionFactory.GetTypesMemberDescription(typeof(Domain), typeof(Models.Order), typeof(Models.Asset)),
+                PrimaryType = nameof(Order),
+            };
+        }
 
         public MerkleTreeController()
         {
@@ -96,6 +117,23 @@ namespace MerkleTreeWebAPI.Controllers
             Root root = new Root();
             root.RootString = Encoding.UTF8.GetString(tree.MerkleRootHash);
             return root;
+        }
+
+        //POST api/MerkleTree/validate
+        [HttpPost("validate")]
+        public async Task<bool> ValidateSignature(MessageAndSignature mas)
+        {
+
+            var typedData = GetMailTypedDefinition();
+
+            var addressRecovered = _signer.RecoverFromSignatureV4(mas.Message, typedData, mas.Signature);
+
+            bool valid = addressRecovered == mas.Address;
+            Console.WriteLine("answer is: " + valid);
+            Console.WriteLine("recovered: " + addressRecovered + " | original: " + mas.Address);
+            Console.WriteLine(mas.Message.MakeAsset.TokenId);
+
+            return valid;
         }
 
     }
