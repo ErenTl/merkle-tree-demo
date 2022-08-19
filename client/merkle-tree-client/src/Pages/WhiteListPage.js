@@ -84,7 +84,7 @@ export class WhiteListPage extends Component{
     async sendRootToFactoryContract(root) {
         const tx = await this.state.atokenFactoryContract.methods.setRoot(root).send({from: this.state.accounts[0]});
         console.log(tx);
-    }
+    }   
 
     
     async getProofFromBE() {
